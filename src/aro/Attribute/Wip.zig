@@ -435,6 +435,7 @@ pub fn applyDeclAttrsExtra(
                 .always_inline => try wip.applyAlwaysInline(),
                 .gnu_inline => try wip.applyGnuInline(),
                 .section => try wip.applySection(),
+                .dllimport => try wip.applyDllImport(),
                 else => {
                     try wip.err(.unimplemented, .{attr});
                 },
@@ -465,6 +466,7 @@ pub fn applyDeclAttrsExtra(
                 .deprecated => try wip.applyDeprecated(),
                 .noreturn => try wip.applyNoreturn(),
                 .allocate => try wip.applySection(),
+                .dllimport => try wip.applyDllImport(),
                 else => {
                     try wip.err(.unimplemented, .{attr});
                 },
@@ -523,6 +525,7 @@ fn inherit(wip: *Wip, p: *Parser, decl: Tree.Node.Index) !void {
             .cleanup,
             .always_inline,
             .gnu_inline,
+            .dllimport,
             => {},
             .alignment => {
                 try wip.addAlignmentToTypeMap(attr.args.alignment);
@@ -1323,4 +1326,11 @@ fn applyFalltrhough(wip: *Wip) !void {
     }
 
     try wip.add(.fallthrough);
+}
+
+fn applyDllImport(wip: *Wip) !void {
+    if (try wip.checkTarget(&.{ .function, .global_variable })) return;
+    if (try wip.argCount(0)) return;
+
+    try wip.add(.dllimport);
 }

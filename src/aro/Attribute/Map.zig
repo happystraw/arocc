@@ -41,6 +41,7 @@ const Repr = struct {
         always_inline,
         gnu_inline,
         section,
+        dllimport,
     };
 };
 
@@ -159,6 +160,7 @@ pub fn put(map: *Map, gpa: mem.Allocator, attribute: Attribute) !Ref {
             try map.extra.append(gpa, attribute.tok);
             try map.putString(gpa, name);
         },
+        .dllimport => repr.tag = .dllimport,
         else => @panic("TODO"),
     }
 
@@ -250,6 +252,7 @@ pub fn get(map: *const Map, ref: Ref) Attribute {
             const name, _ = map.getString(repr.data + 1);
             res.args = .{ .section = name };
         },
+        .dllimport => res.args = .dllimport,
     }
     return res;
 }
